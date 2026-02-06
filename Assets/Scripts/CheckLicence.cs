@@ -59,8 +59,8 @@ public class CheckLicense : MonoBehaviour
                 {
                     foreach (var doc in collection.documents)
                     {
-                        string firestoreCpuId = doc?.fields?.cpuId?.stringValue ?? "N/A";
-                        if (firestoreCpuId == hardwareCpuId)
+                        string firestoreDeviceId = doc?.fields?.deviceId?.stringValue ?? "N/A";
+                        if (firestoreDeviceId == hardwareCpuId)
                         {
                             Debug.Log("결과: CPU ID가 Firestore에 있음");
                             found = true;
@@ -115,14 +115,14 @@ public class CheckLicense : MonoBehaviour
     }
 
     [Serializable]
-    private class Fields
+    public class Fields
     {
-        public CpuId cpuId;
+        public DeviceId deviceId;
         public AuthenticationAllowed isAuthenticated; // 필드 이름 변경
     }
 
     [Serializable]
-    private class CpuId
+    private class DeviceId
     {
         public string stringValue;
     }
