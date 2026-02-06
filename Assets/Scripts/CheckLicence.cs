@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
+using UnityEngine.UI;
 
 public class CheckLicense : MonoBehaviour
 {
