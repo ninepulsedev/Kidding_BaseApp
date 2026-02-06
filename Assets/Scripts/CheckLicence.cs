@@ -118,17 +118,17 @@ public class CheckLicense : MonoBehaviour
     public class Fields
     {
         public DeviceId deviceId;
-        public AuthenticationAllowed isAuthenticated; // 필드 이름 변경
+        public AuthenticationAllowed isAuthenticated;
     }
 
     [Serializable]
-    private class DeviceId
+    public class DeviceId
     {
         public string stringValue;
     }
 
     [Serializable]
-    private class AuthenticationAllowed
+    public class AuthenticationAllowed
     {
         public bool booleanValue;
     }
