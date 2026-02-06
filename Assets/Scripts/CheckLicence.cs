@@ -53,7 +53,7 @@ public class CheckLicense : MonoBehaviour
 
                 var collection = JsonUtility.FromJson<FirestoreCollection>(jsonResponse);
                 bool found = false;
-                bool isAuthenticated = true; // 기본값 설정
+                bool isAuthenticated = false; // 기본값 설정 (인증되지 않은 상태)
                 if (collection.documents != null)
                 {
                     foreach (var doc in collection.documents)
@@ -63,7 +63,7 @@ public class CheckLicense : MonoBehaviour
                         {
                             Debug.Log("결과: CPU ID가 Firestore에 있음");
                             found = true;
-                            isAuthenticated = doc?.fields?.isAuthenticated?.booleanValue ?? true; // isAuthenticated 확인
+                            isAuthenticated = doc?.fields?.isAuthenticated?.booleanValue ?? false; // isAuthenticated 확인
                             Debug.Log($"isAuthenticated 값: {isAuthenticated}");
                             break;
                         }
