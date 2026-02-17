@@ -877,7 +877,9 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
         // 텍스트 설정
         m_OverlayTextImage.text = cleanFileName;
         ApplyLocalizationToOverlayText(cleanFileName);
-        m_OverlayText.text = prefix + " " + cleanFileName + " " + customText;
+        
+        // m_OverlayText: 커스텀 텍스트만 표시 (파일명과 접두사 제거)
+        m_OverlayText.text = customText;
 
         // 페이드 인
         yield return StartCoroutine(FadeInOverlayTexts());
@@ -897,7 +899,8 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
         Debug.Log($"비디오 타입: {m_VideoType}");
         Debug.Log($"접두사: {prefix}");
         Debug.Log($"커스텀 텍스트: {customText}");
-        Debug.Log($"최종 오버레이 텍스트: {prefix} {cleanFileName} {customText}");
+        Debug.Log($"m_OverlayTextImage 표시: {cleanFileName}");
+        Debug.Log($"m_OverlayText 표시: {customText}");
     }
 
     private string GetCustomTextByVideoType()
