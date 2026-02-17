@@ -6,14 +6,14 @@ using System.IO;
 
 public class Mediapipe_Setting : MonoBehaviour
 {
-    // Enum Á¤ÀÇ
+    // Enum ì •ì˜
     public enum CheckType
     {
         UpperBody, // 0
         FullBody   // 1
     }
 
-    // Inspector¿¡¼­ ¼±ÅÃ °¡´ÉÇÑ º¯¼ö
+    // Inspectorì—ì„œ ì„ íƒ ê°€ëŠ¥í•œ ë³€ìˆ˜
     [FoldoutGroup("Setting")][SerializeField] private Canvas m_MPCanvas;
     [FoldoutGroup("Setting")][SerializeField] private CheckType m_CurrentDirection;
     [FoldoutGroup("Setting")][SerializeField] public GameObject m_AnnotatableScreen;
@@ -24,10 +24,10 @@ public class Mediapipe_Setting : MonoBehaviour
     [FoldoutGroup("Save")][SerializeField][Range(2, 5)] public int m_ShoulderWideSizeDivide = 3;
     [FoldoutGroup("Save")][SerializeField][Range(0, 1)][OnValueChanged("Set_Rawimage")] private float m_ScreenAlpha = 0.3f;
 
-    // ÀúÀå °æ·Î
+    // ì €ì¥ ê²½ë¡œ
     private readonly string savePath = @"C:\KidingKiding_App\MPSettings.json";
 
-    // ÀúÀå µ¥ÀÌÅÍ ±¸Á¶
+    // ì €ì¥ ë°ì´í„° êµ¬ì¡°
     [System.Serializable]
     private class MPSetting
     {
@@ -38,7 +38,7 @@ public class Mediapipe_Setting : MonoBehaviour
 
     void Start()
     {
-        // ¼³Á¤ ·Îµå
+        // ì„¤ì • ë¡œë“œ
         LoadSettings();
 
         if (m_PoseRoiAnnotation != null)
@@ -47,16 +47,16 @@ public class Mediapipe_Setting : MonoBehaviour
             if (lineRenderer != null)
                 lineRenderer.enabled = false;
             else
-                Debug.LogWarning("m_PoseRoiAnnotation¿¡ LineRenderer°¡ ¾ø½À´Ï´Ù.");
+                Debug.LogWarning("m_PoseRoiAnnotationì— LineRendererê°€ ì—†ìŠµë‹ˆë‹¤.");
         }
         else
         {
-            Debug.LogWarning("m_PoseRoiAnnotationÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogWarning("m_PoseRoiAnnotationì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
         }
         EnsureBoxCollider();
     }
 
-    // Odin ¹öÆ°À¸·Î ¼³Á¤ ÀúÀå
+    // Odin ë²„íŠ¼ìœ¼ë¡œ ì„¤ì • ì €ì¥
     [FoldoutGroup("Save")]
     [Button("Save Settings")]
     private void SaveSettings()
@@ -72,15 +72,14 @@ public class Mediapipe_Setting : MonoBehaviour
         {
             string json = JsonUtility.ToJson(data, true);
             File.WriteAllText(savePath, json);
-            Debug.Log($"¼³Á¤ÀÌ ÀúÀåµÇ¾ú½À´Ï´Ù: {savePath}");
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"¼³Á¤ ÀúÀå ½ÇÆĞ: {e.Message}");
+            Debug.LogError($"ì„¤ì • ì €ì¥ ì‹¤íŒ¨: {e.Message}");
         }
     }
 
-    // Odin ¹öÆ°À¸·Î ¼³Á¤ ·Îµå
+    // Odin ë²„íŠ¼ìœ¼ë¡œ ì„¤ì • ë¡œë“œ
     [FoldoutGroup("Save")]
     [Button("Load Settings")]
     private void LoadSettings()
@@ -94,16 +93,15 @@ public class Mediapipe_Setting : MonoBehaviour
                 m_DownOffSetPerceent = data.downOffsetPercent;
                 m_ShoulderWideSizeDivide = data.shoulderWideSizeDivide;
                 m_ScreenAlpha = data.screenAlpha;
-                Debug.Log($"¼³Á¤ÀÌ ·ÎµåµÇ¾ú½À´Ï´Ù: DownOffsetPercent={m_DownOffSetPerceent}, ShoulderWideSizeDivide={m_ShoulderWideSizeDivide}, ScreenAlpha={m_ScreenAlpha}");
             }
             else
             {
-                Debug.LogWarning($"¼³Á¤ ÆÄÀÏÀ» Ã£À» ¼ö ¾ø½À´Ï´Ù: {savePath}. ±âº»°ª »ç¿ë.");
+                Debug.LogWarning($"ì„¤ì • íŒŒì¼ì„ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤: {savePath}. ê¸°ë³¸ê°’ ì‚¬ìš©.");
             }
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"¼³Á¤ ·Îµå ½ÇÆĞ: {e.Message}");
+            Debug.LogError($"ì„¤ì • ë¡œë“œ ì‹¤íŒ¨: {e.Message}");
         }
 
         Set_Rawimage();
@@ -114,7 +112,7 @@ public class Mediapipe_Setting : MonoBehaviour
         RawImage rawImage = m_AnnotatableScreen.GetComponent<RawImage>();
 
         Color color = rawImage.color;
-        color.a = m_ScreenAlpha; // Áï½Ã Åõ¸íµµ ¼³Á¤
+        color.a = m_ScreenAlpha; // ì¦‰ì‹œ íˆ¬ëª…ë„ ì„¤ì •
         rawImage.color = color;
     }
 
@@ -122,14 +120,14 @@ public class Mediapipe_Setting : MonoBehaviour
     {
         if (m_PointListAnnotation == null || m_AnnotatableScreen == null || m_MPCanvas == null)
         {
-            Debug.LogWarning("m_PointListAnnotation, m_AnnotatableScreen, ¶Ç´Â m_Canvas°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogWarning("m_PointListAnnotation, m_AnnotatableScreen, ë˜ëŠ” m_Canvasê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             return;
         }
 
         BoxCollider boxCollider = m_PointListAnnotation.GetComponent<BoxCollider>();
         if (boxCollider == null)
         {
-            Debug.LogWarning("m_PointListAnnotation¿¡ BoxCollider°¡ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("m_PointListAnnotationì— BoxColliderê°€ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
@@ -150,7 +148,7 @@ public class Mediapipe_Setting : MonoBehaviour
     {
         if (boxCollider == null)
         {
-            Debug.LogWarning("BoxCollider°¡ nullÀÔ´Ï´Ù.");
+            Debug.LogWarning("BoxColliderê°€ nullì…ë‹ˆë‹¤.");
             return;
         }
 
@@ -158,7 +156,7 @@ public class Mediapipe_Setting : MonoBehaviour
         RectTransform canvasRect = m_MPCanvas.GetComponent<RectTransform>();
         if (canvasRect == null)
         {
-            Debug.LogWarning("m_Canvas¿¡ RectTransformÀÌ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("m_Canvasì— RectTransformì´ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
@@ -178,7 +176,7 @@ public class Mediapipe_Setting : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("m_AnnotatableScreen¿¡ Renderer°¡ ¾ø½À´Ï´Ù. y ¿ÀÇÁ¼ÂÀ» 0À¸·Î ¼³Á¤ÇÕ´Ï´Ù.");
+            Debug.LogWarning("m_AnnotatableScreenì— Rendererê°€ ì—†ìŠµë‹ˆë‹¤. y ì˜¤í”„ì…‹ì„ 0ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.");
         }
 
         float targetScreenY = targetCanvasYCenter - (colliderYCenter - screenPosition.y);
@@ -188,15 +186,13 @@ public class Mediapipe_Setting : MonoBehaviour
 
         screenPosition.y = smoothedY;
         m_AnnotatableScreen.transform.position = screenPosition;
-
-        Debug.Log($"m_AnnotatableScreen y-À§Ä¡ Á¤·Ä: {screenPosition.y}, BoxCollider y-Áß½É: {colliderYCenter}, Canvas y-Áß½É: {canvasYCenter}, ¿ÀÇÁ¼Â: {offset}, ¸ñÇ¥ Canvas y-Áß½É: {targetCanvasYCenter}");
     }
 
     private void EnsureBoxCollider()
     {
         if (m_PointListAnnotation == null)
         {
-            Debug.LogWarning("m_PointListAnnotationÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogWarning("m_PointListAnnotationì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             return;
         }
 
@@ -204,7 +200,6 @@ public class Mediapipe_Setting : MonoBehaviour
         if (boxCollider == null)
         {
             boxCollider = m_PointListAnnotation.AddComponent<BoxCollider>();
-            Debug.Log("m_PointListAnnotation¿¡ BoxCollider°¡ Ãß°¡µÇ¾ú½À´Ï´Ù.");
         }
     }
 
@@ -212,25 +207,24 @@ public class Mediapipe_Setting : MonoBehaviour
     {
         if (m_PointListAnnotation == null)
         {
-            Debug.LogWarning("m_PointListAnnotationÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogWarning("m_PointListAnnotationì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             return;
         }
 
         BoxCollider boxCollider = m_PointListAnnotation.GetComponent<BoxCollider>();
         if (boxCollider == null)
         {
-            Debug.LogWarning("m_PointListAnnotation¿¡ BoxCollider°¡ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("m_PointListAnnotationì— BoxColliderê°€ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
         Renderer[] renderers = m_PointListAnnotation.GetComponentsInChildren<Renderer>(true);
         if (renderers.Length == 0)
         {
-            Debug.LogWarning("m_PointListAnnotationÀÇ ÇÏÀ§ ¿ÀºêÁ§Æ®¿¡ Renderer°¡ ¾ø½À´Ï´Ù (ºñÈ°¼ºÈ­ Æ÷ÇÔ).");
+            Debug.LogWarning("m_PointListAnnotationì˜ í•˜ìœ„ ì˜¤ë¸Œì íŠ¸ì— Rendererê°€ ì—†ìŠµë‹ˆë‹¤ (ë¹„í™œì„±í™” í¬í•¨).");
             return;
         }
 
-        Debug.Log($"FullBody Renderers: {string.Join(", ", renderers.Select(r => r.gameObject.name))}");
         Bounds combinedBounds = renderers[0].bounds;
 
         foreach (Renderer renderer in renderers)
@@ -238,7 +232,6 @@ public class Mediapipe_Setting : MonoBehaviour
             combinedBounds.Encapsulate(renderer.bounds);
         }
 
-        Debug.Log($"FullBody Combined Bounds Size: {combinedBounds.size}");
         boxCollider.center = m_PointListAnnotation.transform.InverseTransformPoint(combinedBounds.center);
 
         Vector3 localScale = m_PointListAnnotation.transform.lossyScale;
@@ -247,40 +240,37 @@ public class Mediapipe_Setting : MonoBehaviour
             Mathf.Abs(localScale.y) > 0.0001f ? combinedBounds.size.y / Mathf.Abs(localScale.y) : combinedBounds.size.y,
             Mathf.Abs(localScale.z) > 0.0001f ? combinedBounds.size.z / Mathf.Abs(localScale.z) : combinedBounds.size.z
         );
-
-        Debug.Log($"FullBody BoxCollider Size: {boxCollider.size}");
     }
 
     private void UpdateBoxColliderSize_UpperBody()
     {
         if (m_PointListAnnotation == null)
         {
-            Debug.LogWarning("m_PointListAnnotationÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogWarning("m_PointListAnnotationì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             return;
         }
 
         BoxCollider boxCollider = m_PointListAnnotation.GetComponent<BoxCollider>();
         if (boxCollider == null)
         {
-            Debug.LogWarning("m_PointListAnnotation¿¡ BoxCollider°¡ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("m_PointListAnnotationì— BoxColliderê°€ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
         Renderer[] renderers = m_PointListAnnotation.GetComponentsInChildren<Renderer>(true);
         if (renderers.Length == 0)
         {
-            Debug.LogWarning("m_PointListAnnotationÀÇ ÇÏÀ§ ¿ÀºêÁ§Æ®¿¡ Renderer°¡ ¾ø½À´Ï´Ù (ºñÈ°¼ºÈ­ Æ÷ÇÔ).");
+            Debug.LogWarning("m_PointListAnnotationì˜ í•˜ìœ„ ì˜¤ë¸Œì íŠ¸ì— Rendererê°€ ì—†ìŠµë‹ˆë‹¤ (ë¹„í™œì„±í™” í¬í•¨).");
             return;
         }
 
         var upperBodyRenderers = renderers.Take(25).ToArray();
         if (upperBodyRenderers.Length == 0)
         {
-            Debug.LogWarning("m_PointListAnnotationÀÇ ÇÏÀ§ ¿ÀºêÁ§Æ®¿¡ ÀÎµ¦½º 0-24¹ø Renderer°¡ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("m_PointListAnnotationì˜ í•˜ìœ„ ì˜¤ë¸Œì íŠ¸ì— ì¸ë±ìŠ¤ 0-24ë²ˆ Rendererê°€ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        Debug.Log($"UpperBody Renderers: {string.Join(", ", upperBodyRenderers.Select(r => r.gameObject.name))}");
         Bounds combinedBounds = upperBodyRenderers[0].bounds;
 
         foreach (Renderer renderer in upperBodyRenderers)
@@ -288,7 +278,6 @@ public class Mediapipe_Setting : MonoBehaviour
             combinedBounds.Encapsulate(renderer.bounds);
         }
 
-        Debug.Log($"UpperBody Combined Bounds Size: {combinedBounds.size}");
         boxCollider.center = m_PointListAnnotation.transform.InverseTransformPoint(combinedBounds.center);
 
         Vector3 localScale = m_PointListAnnotation.transform.lossyScale;
@@ -297,8 +286,6 @@ public class Mediapipe_Setting : MonoBehaviour
             Mathf.Abs(localScale.y) > 0.0001f ? combinedBounds.size.y / Mathf.Abs(localScale.y) : combinedBounds.size.y,
             Mathf.Abs(localScale.z) > 0.0001f ? combinedBounds.size.z / Mathf.Abs(localScale.z) : combinedBounds.size.z
         );
-
-        Debug.Log($"UpperBody BoxCollider Size: {boxCollider.size}");
     }
 
     private void AnnotatableScreenSize()

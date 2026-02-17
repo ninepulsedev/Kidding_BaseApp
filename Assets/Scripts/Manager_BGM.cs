@@ -40,13 +40,13 @@ public class Manager_BGM : MonoBehaviour
     private void DebugLog(string message)
     {
         if (m_EnableDebugLogs)
-            Debug.Log($"[Manager_BGM] {message}");
+            return;
     }
 
     private void DebugLogWarning(string message)
     {
         if (m_EnableDebugLogs)
-            Debug.LogWarning($"[Manager_BGM] {message}");
+            return;
     }
 
     // 외부 폴더에서 오디오 로드
@@ -54,13 +54,11 @@ public class Manager_BGM : MonoBehaviour
     {
         if (string.IsNullOrEmpty(m_ExternalMusicPath))
         {
-            Debug.LogError("[Manager_BGM] External music path is not set!");
             yield break;
         }
 
         if (!Directory.Exists(m_ExternalMusicPath))
         {
-            Debug.LogError($"[Manager_BGM] Music folder not found: {m_ExternalMusicPath}");
             yield break;
         }
 
@@ -78,7 +76,6 @@ public class Manager_BGM : MonoBehaviour
 
         if (audioFiles.Count == 0)
         {
-            Debug.LogWarning($"[Manager_BGM] No audio files found in: {m_ExternalMusicPath}");
             isLoadingAudio = false;
             yield break;
         }
@@ -152,7 +149,7 @@ public class Manager_BGM : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"[Manager_BGM] Failed to load audio: {filePath}, Error: {www.error}");
+                // Failed to load audio
             }
         }
         
@@ -170,11 +167,10 @@ public class Manager_BGM : MonoBehaviour
             isPlaying = false;
             clipTimer = 0f;
             currentClip = null;
-            DebugLog("BGM stopped");
         }
         else
         {
-            Debug.LogError("m_AudioSource is not assigned or failed to initialize", this);
+            // AudioSource is not assigned or failed to initialize
         }
     }
 
@@ -188,7 +184,6 @@ public class Manager_BGM : MonoBehaviour
             {
                 m_AudioSource.Pause();
                 isPlaying = false;
-                DebugLog($"BGM paused at {clipTimer}s of clip {currentClip?.name}");
             }
             else
             {
@@ -197,7 +192,7 @@ public class Manager_BGM : MonoBehaviour
         }
         else
         {
-            Debug.LogError("m_AudioSource is not assigned or failed to initialize", this);
+            // AudioSource is not assigned or failed to initialize
         }
     }
 
@@ -207,7 +202,6 @@ public class Manager_BGM : MonoBehaviour
     {
         if (m_AudioSource == null)
         {
-            Debug.LogError("m_AudioSource is not assigned or failed to initialize", this);
             return;
         }
 
@@ -220,7 +214,6 @@ public class Manager_BGM : MonoBehaviour
 
         if (m_ListAudio == null || m_ListAudio.Count == 0)
         {
-            Debug.LogError("m_ListAudio is empty or not assigned", this);
             return;
         }
 
@@ -230,7 +223,6 @@ public class Manager_BGM : MonoBehaviour
             m_AudioSource.Stop();
             isPlaying = false;
             clipTimer = 0f;
-            DebugLog($"BGM stopped due to Play re-click, selecting new clip");
             PlayRandomClip();
             return;
         }
@@ -240,7 +232,6 @@ public class Manager_BGM : MonoBehaviour
         {
             m_AudioSource.UnPause();
             isPlaying = true;
-            DebugLog($"BGM resumed at {clipTimer}s of clip {currentClip.name}");
             return;
         }
 
@@ -291,7 +282,6 @@ public class Manager_BGM : MonoBehaviour
         m_AudioSource.volume = 0f;
         m_AudioSource.Pause();
         isPlaying = false;
-        DebugLog("BGM faded out and paused");
     }
 
     private IEnumerator FadeInCoroutine()
@@ -327,7 +317,6 @@ public class Manager_BGM : MonoBehaviour
             }
 
             m_AudioSource.volume = targetVolume;
-            DebugLog("BGM faded in and playing");
         }
     }
 
@@ -362,7 +351,6 @@ public class Manager_BGM : MonoBehaviour
             // 클립이 끝났는지 확인
             if (clipTimer >= currentClip.length)
             {
-                DebugLog($"Clip {currentClip.name} finished");
                 PlayRandomClip();
             }
         }
@@ -382,7 +370,6 @@ public class Manager_BGM : MonoBehaviour
 
         if (currentClip == null)
         {
-            Debug.LogError("Selected AudioClip is null", this);
             return;
         }
 
@@ -391,7 +378,5 @@ public class Manager_BGM : MonoBehaviour
         m_AudioSource.Play();
         isPlaying = true;
         clipTimer = 0f;
-
-        DebugLog($"Playing clip {currentClip.name} (length: {currentClip.length}s), {availableClips.Count} clips remaining");
     }
 }

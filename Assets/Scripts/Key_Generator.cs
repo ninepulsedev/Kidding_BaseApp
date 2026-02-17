@@ -24,26 +24,25 @@ public class Key_Generator : MonoBehaviour
         string licenseKey = GenerateLicenseKey(hwid);
         m_LicenseKey = licenseKey;
 
-        // ÄÄÇ»ÅÍ ÀÌ¸§ °¡Á®¿À±â
+        // ì»´í“¨í„° ì´ë¦„ ê°€ì ¸ì˜¤ê¸°
         string computerName = System.Environment.MachineName;
         string fileName = $"{computerName}_LicenseKey.dat";
 
-        // ÆÄÀÏ È®ÀåÀÚ ÇÊÅÍ ¼³Á¤ (.dat ÆÄÀÏ)
+        // íŒŒì¼ í™•ì¥ì í•„í„° ì„¤ì • (.dat íŒŒì¼)
         var extensions = new[] {
             new ExtensionFilter("License Files", "dat"),
             new ExtensionFilter("All Files", "*"),
         };
 
-        // ÆÄÀÏ ÀúÀå ºê¶ó¿ìÀú ¿­±â
+        // íŒŒì¼ ì €ì¥ ë¸Œë¼ìš°ì € ì—´ê¸°
         var savePath = StandaloneFileBrowser.SaveFilePanel("Save License Key", "", fileName, extensions);
 
-        // ¼±ÅÃµÈ °æ·Î¿¡ ÆÄÀÏ ÀúÀå
+        // ì„ íƒëœ ê²½ë¡œì— íŒŒì¼ ì €ì¥
         if (!string.IsNullOrEmpty(savePath))
         {
             try
             {
                 File.WriteAllText(savePath, licenseKey);
-                Debug.Log($"License key saved to: {savePath}");
             }
             catch (IOException e)
             {
@@ -52,7 +51,7 @@ public class Key_Generator : MonoBehaviour
         }
         else
         {
-            Debug.Log("Save file selection canceled or invalid path.");
+            // Save file selection canceled or invalid path.
         }
     }
 
@@ -94,23 +93,23 @@ public class Key_Generator : MonoBehaviour
 
     public void OpenFileBrowser()
     {
-        // ÆÄÀÏ È®ÀåÀÚ ÇÊÅÍ ¼³Á¤ (.txt ÆÄÀÏ)
+        // íŒŒì¼ í™•ì¥ì í•„í„° ì„¤ì • (.txt íŒŒì¼)
         var extensions = new[] {
             new ExtensionFilter("Hwid Files", "txt"),
             new ExtensionFilter("All Files", "*"),
         };
 
-        // ÆÄÀÏ ºê¶ó¿ìÀú ¿­±â
+        // íŒŒì¼ ë¸Œë¼ìš°ì € ì—´ê¸°
         var paths = StandaloneFileBrowser.OpenFilePanel("Select Hwid File", "", extensions, false);
 
-        // ¼±ÅÃµÈ ÆÄÀÏ Ã³¸®
+        // ì„ íƒëœ íŒŒì¼ ì²˜ë¦¬
         if (paths.Length > 0 && !string.IsNullOrEmpty(paths[0]))
         {
             LoadDatFile(paths[0]);
         }
         else
         {
-            Debug.Log("File selection canceled or invalid path.");
+            // File selection canceled or invalid path.
         }
     }
 
@@ -118,16 +117,14 @@ public class Key_Generator : MonoBehaviour
     {
         try
         {
-            // 1. ¹ÙÀÌ³Ê¸® µ¥ÀÌÅÍ·Î ÀĞ±â (ÇÊ¿äÇÑ °æ¿ì)
+            // 1. ë°”ì´ë„ˆë¦¬ ë°ì´í„° ì½ê¸° (í•„ìš”ì‹œ)
             byte[] fileData = File.ReadAllBytes(filePath);
-            Debug.Log($"Loaded {fileData.Length} bytes from: {filePath}");
 
-            // 2. ÅØ½ºÆ®·Î ÀĞ±â (ÅØ½ºÆ® ±â¹İ .dat ÆÄÀÏÀÎ °æ¿ì)
+            // 2. í…ìŠ¤íŠ¸ ì½ê¸° (í…ìŠ¤íŠ¸ íŒŒì¼ .dat ê°€ì •)
             string textContent = File.ReadAllText(filePath);
-            Debug.Log($"Text content: {textContent}");
 
-            // ¿©±â¼­ fileData ¶Ç´Â textContent¸¦ »ç¿ëÇØ Ãß°¡ Ã³¸®
-            // ¿¹: ¶óÀÌ¼±½º µ¥ÀÌÅÍ ÆÄ½Ì, °ËÁõ µî
+            // ì—¬ê¸°ì„œ fileData ë˜ëŠ” textContentë¥¼ ì‚¬ìš©í•´ ì¶”ê°€ ì²˜ë¦¬
+            // ì˜ˆ: ë¼ì´ì„ ìŠ¤ ë°ì´í„° íŒŒì‹±, ê²€ì¦ ë“±
             ProcessLicenseData(textContent);
         }
         catch (IOException e)
@@ -138,19 +135,18 @@ public class Key_Generator : MonoBehaviour
 
     void ProcessLicenseData(string content)
     {
-        // .dat ÆÄÀÏ ³»¿ëÀ» ±â¹İÀ¸·Î ¶óÀÌ¼±½º Ã³¸® ·ÎÁ÷
-        // ¿¹: °£´ÜÇÑ °ËÁõ ·ÎÁ÷
+        // .dat íŒŒì¼ ë‚´ìš©ì„ ê¸°ë°˜ìœ¼ë¡œ ë¼ì´ì„ ìŠ¤ ì²˜ë¦¬ ë¡œì§
+        // ì˜ˆ: ë°ì´í„° ì²˜ë¦¬
         if (!string.IsNullOrEmpty(content))
         {
-            Debug.Log("License file content processed successfully.");
-            // ½ÇÁ¦·Î´Â JSON, XML, ¶Ç´Â Æ¯Á¤ Æ÷¸ËÀ¸·Î ÆÄ½Ì °¡´É
-            // ¿¹: if (content.Contains("valid_license_key")) { ... }
+            // License file content processed successfully.
+            // ì—¬ê¸°ì„œ JSON, XML, ë˜ëŠ” íŠ¹ì • í˜•ì‹ íŒŒì‹± ê°€ëŠ¥
+            // ì˜ˆ: if (content.Contains("valid_license_key")) { ... }
             m_Hwid = content;
-            m_InputField.text = content;
         }
         else
         {
-            Debug.LogWarning("License file is empty or invalid.");
+            // License file is empty or invalid.
         }
     }
 }

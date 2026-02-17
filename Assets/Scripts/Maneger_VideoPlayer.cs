@@ -69,16 +69,12 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
 
     private IEnumerator LoadAudioClip(string audioPath, System.Action<AudioClip> onComplete)
     {
-        Debug.LogWarning($"[오디오 로딩 시작] 경로: {audioPath}");
-        
         if (!File.Exists(audioPath))
         {
-            Debug.LogWarning($"[오디오 로딩 실패] 파일을 찾을 수 없습니다: {audioPath}");
+            Debug.LogError($"오디오 파일을 찾을 수 없습니다: {audioPath}");
             onComplete?.Invoke(null);
             yield break;
         }
-
-        Debug.LogWarning($"[오디오 로딩 중] 파일 존재 확인, UnityWebRequest 시작: {audioPath}");
 
         using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + audioPath, AudioType.MPEG))
         {
@@ -89,17 +85,17 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
                 AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
                 if (clip != null)
                 {
-                    Debug.LogWarning($"[오디오 로딩 성공] 파일: {audioPath}, 길이: {clip.length:F2}초, 샘플: {clip.samples}");
+                    onComplete?.Invoke(clip);
                 }
                 else
                 {
-                    Debug.LogWarning($"[오디오 로딩 실패] 클립이 null입니다: {audioPath}");
+                    Debug.LogError($"오디오 클립 로드 실패: {audioPath}");
+                    onComplete?.Invoke(null);
                 }
-                onComplete?.Invoke(clip);
             }
             else
             {
-                Debug.LogError($"[오디오 로딩 실패] 경로: {audioPath}, 오류: {www.error}, 결과: {www.result}");
+                Debug.LogError($"오디오 로드 실패: {audioPath}, 오류: {www.error}");
                 onComplete?.Invoke(null);
             }
         }
@@ -233,11 +229,6 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
             if (audioClip != null && m_AudioSource != null)
             {
                 m_AudioSource.clip = audioClip;
-                Debug.Log($"오디오 로드 완료: {audioPath}");
-            }
-            else
-            {
-                Debug.LogWarning($"오디오 로드 실패: {audioPath}");
             }
         }));
 
@@ -292,11 +283,6 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
             if (audioClip != null && m_AudioSource != null)
             {
                 m_AudioSource.clip = audioClip;
-                Debug.Log($"오디오 로드 완료: {audioPath}");
-            }
-            else
-            {
-                Debug.LogWarning($"오디오 로드 실패: {audioPath}");
             }
         }));
 
@@ -356,11 +342,6 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
             if (audioClip != null && m_AudioSource != null)
             {
                 m_AudioSource.clip = audioClip;
-                Debug.Log($"오디오 로드 완료: {audioPath}");
-            }
-            else
-            {
-                Debug.LogWarning($"오디오 로드 실패: {audioPath}");
             }
         }));
 
@@ -660,12 +641,9 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
             m_SubTitle.text = "";
         }
 
-        // 자막 경로 출력
-        Debug.Log("📂 시도하는 자막 경로: " + subtitlePath);
-
         if (!File.Exists(subtitlePath))
         {
-            Debug.LogWarning($"❌ 자막 파일을 찾을 수 없습니다: {subtitlePath}");
+            Debug.LogWarning($"자막 파일을 찾을 수 없습니다: {subtitlePath}");
             return;
         }
 
@@ -676,7 +654,7 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"❌ 자막 파일 읽기 실패: {subtitlePath}, 오류: {e.Message}");
+            Debug.LogError($"자막 파일 읽기 실패: {subtitlePath}, 오류: {e.Message}");
             return;
         }
 
@@ -723,9 +701,6 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
 
             index++;
         }
-
-        // 자막 메모리에 올라간 개수 출력
-        Debug.Log("✅ 메모리에 로드된 자막 수: " + m_Subtitles.Count);
     }
 
     private double ParseTime(string timeStr)
@@ -871,34 +846,14 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
         string prefix = GetVideoTypePrefix();
         string customText = GetCustomTextByVideoType();
 
-        // 디버그 로깅 추가
-        DebugOverlayTextContent(currentFileName, cleanFileName, prefix, customText);
-
-        // 텍스트 설정
         m_OverlayTextImage.text = cleanFileName;
-        // m_OverlayText: 커스텀 텍스트만 표시 (파일명과 접두사 제거)
         m_OverlayText.text = customText;
 
-        // 페이드 인
         yield return StartCoroutine(FadeInOverlayTexts());
 
-        // 3초 동안 표시
         yield return new WaitForSeconds(3f);
 
-        // 페이드 아웃
         yield return StartCoroutine(FadeOutOverlayTexts());
-    }
-
-    private void DebugOverlayTextContent(string currentFileName, string cleanFileName, string prefix, string customText)
-    {
-        Debug.Log($"[오버레이 텍스트 디버그]");
-        Debug.Log($"원본 파일명: {currentFileName}");
-        Debug.Log($"정리된 파일명: {cleanFileName}");
-        Debug.Log($"비디오 타입: {m_VideoType}");
-        Debug.Log($"접두사: {prefix}");
-        Debug.Log($"커스텀 텍스트: {customText}");
-        Debug.Log($"m_OverlayTextImage 표시: {cleanFileName}");
-        Debug.Log($"m_OverlayText 표시: {customText}");
     }
 
     private string GetCustomTextByVideoType()

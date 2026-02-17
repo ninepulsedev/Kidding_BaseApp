@@ -59,11 +59,6 @@ public class Maneger_UI : MonoBehaviour
             if (File.Exists(pageInfoPath))
             {
                 File.Delete(pageInfoPath);
-                Debug.Log($"������ ���������� �����Ǿ����ϴ�: {pageInfoPath}");
-            }
-            else
-            {
-                Debug.LogWarning($"�����Ϸ��� ������ �������� �ʽ��ϴ�: {pageInfoPath}");
             }
         }
         catch (System.Exception e)
@@ -222,7 +217,6 @@ public class Maneger_UI : MonoBehaviour
             m_List_Contents.m_GameMotionIndex = 0;
             m_List_Contents.Set_AllIndex();
         }
-        Debug.Log("기본값 적용 완료: 모든 인덱스 = 0");
     }
 
     private void LoadPageIndexFromFile()
@@ -235,7 +229,6 @@ public class Maneger_UI : MonoBehaviour
             if (!Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
-                Debug.Log($"Created directory: {directory}");
             }
 
             if (File.Exists(pageInfoPath))
@@ -254,16 +247,11 @@ public class Maneger_UI : MonoBehaviour
                     m_List_Contents.m_GameTouchIndex = data.gameTouchIndex;
                     m_List_Contents.m_GameMotionIndex = data.gameMotionIndex;
                     m_List_Contents.Set_AllIndex(); // UI ����
-                    Debug.Log($"Loaded indices: pageIndex={m_PageIndex}, greekMythologyIndex={data.greekMythologyIndex}, storyIndex={data.storyIndex}, mvIndex={data.mvIndex}, gameTouchIndex={data.gameTouchIndex}, gameMotionIndex={data.gameMotionIndex}");
-                }
-                else
-                {
-                    Debug.LogWarning("m_List_Contents is null. Only m_PageIndex loaded.");
                 }
             }
             else
             {
-                Debug.Log($"PageInfo.txt not found at {pageInfoPath}. Using default values.");
+                // PageInfo.txt not found. Using default values.
                 // 기본값 적용
                 m_PageIndex = 0;
                 if (m_List_Contents != null)
@@ -273,7 +261,7 @@ public class Maneger_UI : MonoBehaviour
                     m_List_Contents.m_MVIndex = 0;
                     m_List_Contents.m_GameTouchIndex = 0;
                     m_List_Contents.m_GameMotionIndex = 0;
-                    m_List_Contents.Set_AllIndex(); // UI 업데이트
+                    m_List_Contents.Set_AllIndex(); // UI ����
                 }
                 SavePageIndexToFile(); // 기본값으로 파일 생성������ ������ �����ϰ� �⺻�� ����
             }
@@ -308,7 +296,6 @@ public class Maneger_UI : MonoBehaviour
             if (!Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
-                Debug.Log($"Created directory: {directory}");
             }
 
             // ������ �غ�
@@ -325,7 +312,6 @@ public class Maneger_UI : MonoBehaviour
             // JSON���� ����ȭ
             string jsonContent = JsonUtility.ToJson(data, true);
             File.WriteAllText(pageInfoPath, jsonContent);
-            Debug.Log($"Saved data to {pageInfoPath}: {jsonContent}");
         }
         catch (System.Exception e)
         {

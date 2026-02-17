@@ -73,12 +73,10 @@ public class PointsPos : MonoBehaviour
 
         if (WebCamTexture.devices.Length == 0)
         {
-            Debug.Log("컴퓨터에 연결된 웹캠을 찾을 수 없습니다. 모션인식 기능을 비활성화합니다.");
             gameObject.SetActive(false);
             return;
         }
 
-        Debug.Log("웹캠이 발견되었습니다. 모션인식 기능을 활성화합니다.");
         holisticLandmarks.SetActive(true);
         Invoke(nameof(ToggleHolisticLandmarks), 0.1f);
     }

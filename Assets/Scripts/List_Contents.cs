@@ -106,13 +106,6 @@ public class List_Contents : MonoBehaviour
                 }
             }
 
-            Debug.Log($"이미지 로드 완료: {directoryPath} ({spriteList.Count}개)");
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"디렉토리 처리 중 오류 발생 ({directoryPath}): {e.Message}");
-        }
-
         return spriteList;
     }
 
@@ -393,7 +386,6 @@ public class List_Contents : MonoBehaviour
 
             // 첫 번째 매칭 폴더 선택 (필요 시 다른 기준 적용 가능)
             string selectedFolder = folders[0];
-            Debug.Log($"선택된 폴더: {selectedFolder}");
 
             // 선택된 폴더 내 filename이 포함된 .exe 파일 검색
             string[] exeFiles = Directory.GetFiles(selectedFolder, $"*{filename}*.exe", SearchOption.TopDirectoryOnly);
@@ -425,30 +417,22 @@ public class List_Contents : MonoBehaviour
 
             // 프로세스 실행
             Process.Start(startInfo);
-            Debug.Log($"실행 시작: {exePath}");
 
             // BGM 일시정지
             if (m_Maneger_BGM != null)
             {
                 m_Maneger_BGM.Pause();
-                Debug.Log("BGM 일시정지됨");
-            }
-            else
-            {
-                Debug.LogWarning("m_Maneger_BGM이 null입니다!");
             }
 
             // 애플리케이션 종료
             if (Application.isEditor)
             {
 #if UNITY_EDITOR
-                Debug.Log("에디터에서 실행 중: 플레이 모드 종료");
                 EditorApplication.isPlaying = false;
 #endif
             }
             else
             {
-                Debug.Log("빌드에서 실행 중: 애플리케이션 종료");
                 Application.Quit();
             }
         }

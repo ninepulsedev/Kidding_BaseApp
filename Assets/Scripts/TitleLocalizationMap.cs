@@ -31,7 +31,6 @@ public static class TitleLocalizationMap
         TextAsset jsonFile = Resources.Load<TextAsset>("title_localization");
         if (jsonFile == null)
         {
-            Debug.LogError("JSON 파일을 찾을 수 없습니다: title_localization.json");
             return;
         }
 
@@ -46,7 +45,6 @@ public static class TitleLocalizationMap
                     TableEntryReference = mapping.tableEntryReference
                 };
             }
-            Debug.Log($"✅ JSON에서 로드된 매핑 수: {titleMappings.Count}");
         }
         catch (System.Exception e)
         {
@@ -61,7 +59,6 @@ public static class TitleLocalizationMap
         {
             return localizedString;
         }
-        Debug.LogWarning($"매핑되지 않은 제목: {koreanTitle}");
         return null;
     }
 }

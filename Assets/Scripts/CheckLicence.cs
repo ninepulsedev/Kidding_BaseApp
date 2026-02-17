@@ -24,11 +24,6 @@ public class CheckLicense : MonoBehaviour
         if (string.IsNullOrEmpty(identifier))
         {
             identifier = System.Guid.NewGuid().ToString();
-            Debug.LogWarning("deviceUniqueIdentifier가 비어 있어 GUID 사용: " + identifier);
-        }
-        else
-        {
-            Debug.Log("[AUTH_DEBUG] CPU ID: " + identifier);
         }
         return identifier;
     }
@@ -49,8 +44,6 @@ public class CheckLicense : MonoBehaviour
             if (request.result == UnityWebRequest.Result.Success && request.responseCode == 200)
             {
                 string jsonResponse = request.downloadHandler.text;
-                Debug.Log("[AUTH_DEBUG] CPU ID: " + hardwareCpuId);
-                Debug.Log("Firestore 응답: " + jsonResponse);
 
                 var collection = JsonUtility.FromJson<FirestoreCollection>(jsonResponse);
                 bool found = false;
@@ -62,10 +55,8 @@ public class CheckLicense : MonoBehaviour
                         string firestoreDeviceId = doc?.fields?.deviceId?.stringValue ?? "N/A";
                         if (firestoreDeviceId == hardwareCpuId)
                         {
-                            Debug.Log("결과: CPU ID가 Firestore에 있음");
                             found = true;
-                            isAuthenticated = doc?.fields?.isAuthenticated?.booleanValue ?? false; // isAuthenticated 확인
-                            Debug.Log($"isAuthenticated 값: {isAuthenticated}");
+                            isAuthenticated = doc?.fields?.isAuthenticated?.booleanValue ?? false;
                             break;
                         }
                     }
@@ -73,25 +64,20 @@ public class CheckLicense : MonoBehaviour
 
                 if (found && !isAuthenticated)
                 {
-                    Debug.Log("[AUTH_DEBUG] Found: True, Auth: False -> Demo Mode ACTIVE");
-                    m_DemoText.SetActive(true); // 데모 모드 활성화
+                    m_DemoText.SetActive(true);
                 }
                 else if (found && isAuthenticated)
                 {
-                    Debug.Log("[AUTH_DEBUG] Found: True, Auth: True -> Demo Mode HIDDEN");
-                    m_DemoText.SetActive(false); // 데모 모드 비활성화
+                    m_DemoText.SetActive(false);
                 }
                 else
                 {
-                    Debug.Log("[AUTH_DEBUG] Found: False -> Demo Mode ACTIVE");
-                    m_DemoText.SetActive(true); // CPU ID 없으면 데모 모드 활성화
+                    m_DemoText.SetActive(true);
                 }
             }
             else if (request.responseCode == 404)
             {
-                Debug.Log("Unity에서 추출한 CPU ID: " + hardwareCpuId);
-                Debug.Log("결과: CPU ID가 Firestore에 없음 (경로 또는 데이터 없음) -> 데모 모드 활성화");
-                m_DemoText.SetActive(true); // 데모 모드 활성화
+                m_DemoText.SetActive(true);
             }
             else
             {

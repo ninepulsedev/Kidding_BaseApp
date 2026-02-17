@@ -32,7 +32,6 @@ public static class Paths
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     public static void Initialize()
     {
-        Debug.Log($"Paths initialized with UseHardcodedPath = {UseHardcodedPath}");
-        Debug.Log($"BasePath = {BasePath}");
+        // Paths initialized
     }
 }

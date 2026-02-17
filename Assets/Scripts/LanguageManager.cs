@@ -442,10 +442,6 @@ public class LanguageManager : MonoBehaviour
         string localeCode = GetLocaleCode(language);
         var locale = LocalizationSettings.AvailableLocales.GetLocale(localeCode);
         if (locale != null) LocalizationSettings.SelectedLocale = locale;
-        else Debug.LogWarning($"Locale for {localeCode} not found.");
-
-        if (m_EnableDebugLogs)
-            Debug.Log($"[LanguageManager] Locale set to {language} ({localeCode})");
     }
 
     /// <summary>
@@ -467,7 +463,6 @@ public class LanguageManager : MonoBehaviour
             var lse = item.m_TextComponent.GetComponent<LocalizeStringEvent>();
             if (lse == null)
             {
-                Debug.LogWarning($"LocalizeStringEvent not found on {item.m_TextComponent.name}");
                 continue;
             }
 
@@ -507,8 +502,6 @@ public class LanguageManager : MonoBehaviour
                         };
                         lse.RefreshString();
                         keyFound = true;
-
-                        Debug.Log($"[LanguageManager] Key \"{matchedEntry.Key}\" (normalized: \"{currentKeyCandidate}\") applied on {item.m_TextComponent.name}");
                         break;
                     }
                 }
@@ -518,7 +511,7 @@ public class LanguageManager : MonoBehaviour
 
             if (!keyFound)
             {
-                Debug.LogWarning($"Key not found: \"{currentKeyCandidate}\" on {item.m_TextComponent.name}");
+                // Key not found
             }
         }
     }
@@ -596,8 +589,6 @@ public class LanguageManager : MonoBehaviour
 
         EditorUtility.SetDirty(this);
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
-
-        Debug.Log($"[LanguageManager] LocalizableTexts 갱신 완료. 총 {m_LocalizableTexts.Count}개 등록됨.");
     }
     #endregion
 #endif
@@ -660,7 +651,6 @@ public class LanguageManager : MonoBehaviour
             string directory = Path.GetDirectoryName(jsonFilePath);
             if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
             File.WriteAllText(jsonFilePath, json);
-            Debug.Log($"Language settings saved to {jsonFilePath}");
         }
         catch (System.Exception e)
         {
@@ -681,12 +671,14 @@ public class LanguageManager : MonoBehaviour
                 {
                     m_SystemLanguage = settings.systemLanguage;
                     m_SelectedLanguage = settings.selectedLanguage;
-                    Debug.Log($"Language settings loaded from {jsonFilePath}");
                 }
 
                 ApplyAllTextSettings();
             }
-            else Debug.LogWarning($"Language settings file not found at {jsonFilePath}. Using default settings.");
+            else
+            {
+                // Language settings file not found. Using default settings.
+            }
         }
         catch (System.Exception e)
         {
