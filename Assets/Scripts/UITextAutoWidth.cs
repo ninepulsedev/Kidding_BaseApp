@@ -46,11 +46,7 @@ public class UITextAutoWidth : MonoBehaviour
     [Tooltip("텍스트가 변경될 때만 업데이트")]
     public bool updateOnTextChanged = true;
     
-    private Text m_Text;
-    private RectTransform m_RectTransform;
-    private string m_LastText = "";
-    private float m_LastFontSize = 0f;
-    private Font m_LastFont = null;
+    private bool m_NeedsUpdate = false;
 
     private void Awake()
     {
@@ -65,27 +61,21 @@ public class UITextAutoWidth : MonoBehaviour
 
     private void OnValidate()
     {
-        // 에디터에서 값이 변경될 때마다 업데이트
-        if (Application.isPlaying)
-            return;
-            
-        // 에디터 모드에서 컴포넌트 참조 확인 및 업데이트
-        if (m_Text == null)
-            m_Text = GetComponent<Text>();
-            
-        if (m_RectTransform == null)
-            m_RectTransform = GetComponent<RectTransform>();
-            
-        if (m_Text != null && m_RectTransform != null)
-        {
-            // 에디터에서 실시간으로 업데이트
-            UpdateWidthByMode();
-        }
+        // 에디터에서 값이 변경되면 업데이트 플래그 설정
+        m_NeedsUpdate = true;
     }
 
     // ExecuteAlways는 에디터에서 매 프레임 실행됨
     private void Update()
     {
+        // OnValidate에서 설정된 업데이트 플래그 확인
+        if (m_NeedsUpdate)
+        {
+            m_NeedsUpdate = false;
+            UpdateWidthByMode();
+            return;
+        }
+        
         // 에디터에서만 실행 (플레이 모드에서는 필요에 따라)
         if (!Application.isPlaying)
         {
