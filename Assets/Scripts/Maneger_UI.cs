@@ -22,7 +22,7 @@ public class Maneger_UI : MonoBehaviour
     [FoldoutGroup("Audio")] public GameObject m_AudioClick;
 
     private readonly string pageInfoPath = Paths.PageInfoPath;
-    private Maneger_Player m_PlayerManager;
+    private VideoPlayerManager m_PlayerManager;
 
     [Serializable]
     private struct PageData
@@ -39,7 +39,7 @@ public class Maneger_UI : MonoBehaviour
         m_Setting.SetActive(false);
         m_Player.SetActive(false); 
         if (m_Player != null)
-            m_PlayerManager = m_Player.GetComponent<Maneger_Player>();
+            m_PlayerManager = m_Player.GetComponent<VideoPlayerManager>();
     }
     void Start()
     {

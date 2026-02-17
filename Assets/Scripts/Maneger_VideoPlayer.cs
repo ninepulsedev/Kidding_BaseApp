@@ -13,7 +13,14 @@ using UnityEngine.Localization;
 using UnityEngine.Networking;
 using Utils;
 
-public class Maneger_Player : MonoBehaviour, IPointerDownHandler, IDragHandler
+public enum VideoContentType
+{
+    GreekMythology,
+    Story,
+    MV
+}
+
+public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandler
 {
     [FoldoutGroup("Setting")] public Canvas m_MP_Cavas;
     [FoldoutGroup("Setting")] public List_Contents m_List_Contents;
@@ -32,11 +39,17 @@ public class Maneger_Player : MonoBehaviour, IPointerDownHandler, IDragHandler
     [FoldoutGroup("Setting")] public Text m_TitleText;
     [FoldoutGroup("Setting")] public Text m_Message;
     [FoldoutGroup("Setting")] public AudioSource m_AudioSource; // 영상 오디오 전용
+    [FoldoutGroup("Setting")] public Text m_OverlayTextImage;
+    [FoldoutGroup("Setting")] public Text m_OverlayText;
+    [FoldoutGroup("Overlay Settings")]
+    public OverlayTextManager overlayTextManager;
 
     private Image m_ProgressFillImage;
     private bool m_IsVideoPlaying;
     private List<SubtitleEntry> m_Subtitles = new List<SubtitleEntry>();
     private int m_CurrentSubtitleIndex = -1;
+    private bool m_HasShownOverlay = false;
+    private double m_LastVideoTime = 0.0;
 
     string Path = Paths.MoviePath;
     string audioBasePath = Paths.AudioPath;
@@ -123,6 +136,9 @@ public class Maneger_Player : MonoBehaviour, IPointerDownHandler, IDragHandler
 
             UpdateSubtitles(); // 매 프레임 자막 갱신
         }
+        
+        // 오버레이 타이밍 체크
+        CheckOverlayTiming();
     }
 
     private void Reset_Progress()
@@ -540,6 +556,9 @@ public class Maneger_Player : MonoBehaviour, IPointerDownHandler, IDragHandler
         {
             UpdateSubtitles(forceUpdate: true);
         }
+        
+        // 오버레이 초기화
+        ResetOverlay();
     }
 
     private void UpdateSubtitles(bool forceUpdate = false)
@@ -741,5 +760,125 @@ public class Maneger_Player : MonoBehaviour, IPointerDownHandler, IDragHandler
         {
             Debug.LogWarning($"LocalizedString을 찾을 수 없습니다: {m_TitleText.text}");
         }
+    }
+
+    private void CheckOverlayTiming()
+    {
+        if (!m_IsVideoPlaying || m_VideoPlayer == null || m_HasShownOverlay)
+            return;
+            
+        double currentTime = m_VideoPlayer.time;
+        
+        // 2초 시점을 지나갔는지 확인
+        if (currentTime >= 2.0 && m_LastVideoTime < 2.0)
+        {
+            ShowOverlayTexts();
+            m_HasShownOverlay = true;
+        }
+        
+        m_LastVideoTime = currentTime;
+    }
+    
+    private void ShowOverlayTexts()
+    {
+        string currentFileName = GetCurrentVideoFileName();
+        string cleanFileName = FileNameUtils.RemoveSpaces(currentFileName);
+        string prefix = GetVideoTypePrefix();
+        string customText = GetCustomTextByVideoType();
+        
+        // m_OverlayTextImage: 언어 번역 적용
+        m_OverlayTextImage.text = cleanFileName;
+        ApplyLocalizationToOverlayText(cleanFileName);
+        
+        // m_OverlayText: 비디오 타입 + 파일명 + 타입별 커스텀 텍스트
+        m_OverlayText.text = prefix + " " + cleanFileName + " " + customText;
+        
+        // 표시 및 3초 후 숨김
+        m_OverlayTextImage.gameObject.SetActive(true);
+        m_OverlayText.gameObject.SetActive(true);
+        
+        StartCoroutine(HideOverlayAfterDelay(3f));
+    }
+    
+    private string GetCustomTextByVideoType()
+    {
+        string currentTypeString = m_VideoType;
+        VideoContentType currentType;
+        
+        // 문자열을 Enum으로 변환
+        if (System.Enum.TryParse<VideoContentType>(currentTypeString, out currentType))
+        {
+            return overlayTextManager?.GetCustomText(currentType) ?? "";
+        }
+        
+        return "";
+    }
+    
+    private void ApplyLocalizationToOverlayText(string text)
+    {
+        if (m_OverlayTextImage == null) return;
+        
+        var localizeStringEvent = m_OverlayTextImage.GetComponent<LocalizeStringEvent>();
+        if (localizeStringEvent == null) return;
+        
+        LocalizedString localizedString = TitleLocalizationMap.GetLocalizedString(text);
+        if (localizedString != null)
+        {
+            localizeStringEvent.enabled = false;
+            localizeStringEvent.StringReference = localizedString;
+            localizeStringEvent.enabled = true;
+        }
+        else
+        {
+            // 번역 없으면 원본 텍스트 사용
+            m_OverlayTextImage.text = text;
+        }
+    }
+    
+    private string GetCurrentVideoFileName()
+    {
+        switch (m_VideoType)
+        {
+            case "GreekMythology":
+                return m_List_Contents.m_ListGreekMythology[m_List_Contents.m_GreekMythologyIndex].name;
+            case "Story":
+                return m_List_Contents.m_ListStory[m_List_Contents.m_StoryIndex].name;
+            case "MV":
+                return m_List_Contents.m_ListMV[m_List_Contents.m_MVIndex].name;
+            default:
+                return "";
+        }
+    }
+    
+    private string GetVideoTypePrefix()
+    {
+        switch (m_VideoType)
+        {
+            case "GreekMythology": return "그리스신화";
+            case "Story": return "스토리";
+            case "MV": return "뮤직비디오";
+            default: return "";
+        }
+    }
+    
+    private IEnumerator HideOverlayAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        
+        if (m_OverlayTextImage != null)
+            m_OverlayTextImage.gameObject.SetActive(false);
+        if (m_OverlayText != null)
+            m_OverlayText.gameObject.SetActive(false);
+    }
+    
+    private void ResetOverlay()
+    {
+        m_HasShownOverlay = false;
+        m_LastVideoTime = 0.0;
+        
+        if (m_OverlayTextImage != null)
+            m_OverlayTextImage.gameObject.SetActive(false);
+        if (m_OverlayText != null)
+            m_OverlayText.gameObject.SetActive(false);
     }
 }
