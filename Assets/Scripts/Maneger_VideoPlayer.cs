@@ -876,8 +876,6 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
 
         // 텍스트 설정
         m_OverlayTextImage.text = cleanFileName;
-        ApplyLocalizationToOverlayText(cleanFileName);
-        
         // m_OverlayText: 커스텀 텍스트만 표시 (파일명과 접두사 제거)
         m_OverlayText.text = customText;
 
