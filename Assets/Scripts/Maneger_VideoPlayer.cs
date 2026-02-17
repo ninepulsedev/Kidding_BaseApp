@@ -50,6 +50,12 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
     private int m_CurrentSubtitleIndex = -1;
     private bool m_HasShownOverlay = false;
     private double m_LastVideoTime = 0.0;
+    
+    // Fade in/out variables
+    private float fadeInDuration = 1f;
+    private float fadeOutDuration = 1f;
+    private CanvasGroup m_OverlayTextImageCanvasGroup;
+    private CanvasGroup m_OverlayTextCanvasGroup;
 
     string Path = Paths.MoviePath;
     string audioBasePath = Paths.AudioPath;
@@ -109,6 +115,7 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
 
         m_PlayerSetting.SetActive(false);
         Reset_Progress();
+        InitializeCanvasGroups();
     }
 
     void Update()
@@ -766,58 +773,151 @@ public class VideoPlayerManager : MonoBehaviour, IPointerDownHandler, IDragHandl
     {
         if (!m_IsVideoPlaying || m_VideoPlayer == null || m_HasShownOverlay)
             return;
-            
+
         double currentTime = m_VideoPlayer.time;
-        
+
         // 2초 시점을 지나갔는지 확인
         if (currentTime >= 2.0 && m_LastVideoTime < 2.0)
         {
-            ShowOverlayTexts();
+            StartCoroutine(ShowOverlayWithFade());
             m_HasShownOverlay = true;
         }
-        
+
         m_LastVideoTime = currentTime;
     }
-    
-    private void ShowOverlayTexts()
+
+    private void InitializeCanvasGroups()
+    {
+        // CanvasGroup 컴포넌트 가져오기 또는 추가
+        if (m_OverlayTextImage != null)
+        {
+            m_OverlayTextImageCanvasGroup = m_OverlayTextImage.GetComponent<CanvasGroup>();
+            if (m_OverlayTextImageCanvasGroup == null)
+            {
+                m_OverlayTextImageCanvasGroup = m_OverlayTextImage.gameObject.AddComponent<CanvasGroup>();
+            }
+            m_OverlayTextImageCanvasGroup.alpha = 0f;
+            m_OverlayTextImage.gameObject.SetActive(false);
+        }
+
+        if (m_OverlayText != null)
+        {
+            m_OverlayTextCanvasGroup = m_OverlayText.GetComponent<CanvasGroup>();
+            if (m_OverlayTextCanvasGroup == null)
+            {
+                m_OverlayTextCanvasGroup = m_OverlayText.gameObject.AddComponent<CanvasGroup>();
+            }
+            m_OverlayTextCanvasGroup.alpha = 0f;
+            m_OverlayText.gameObject.SetActive(false);
+        }
+    }
+
+    private IEnumerator FadeInOverlayTexts()
+    {
+        if (m_OverlayTextImageCanvasGroup != null && m_OverlayTextCanvasGroup != null)
+        {
+            m_OverlayTextImage.gameObject.SetActive(true);
+            m_OverlayText.gameObject.SetActive(true);
+
+            float elapsedTime = 0f;
+
+            while (elapsedTime < fadeInDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float alpha = Mathf.Clamp01(elapsedTime / fadeInDuration);
+
+                m_OverlayTextImageCanvasGroup.alpha = alpha;
+                m_OverlayTextCanvasGroup.alpha = alpha;
+
+                yield return null;
+            }
+
+            // 완전히 보이도록 설정
+            m_OverlayTextImageCanvasGroup.alpha = 1f;
+            m_OverlayTextCanvasGroup.alpha = 1f;
+        }
+    }
+
+    private IEnumerator FadeOutOverlayTexts()
+    {
+        if (m_OverlayTextImageCanvasGroup != null && m_OverlayTextCanvasGroup != null)
+        {
+            float elapsedTime = 0f;
+            float startAlpha = m_OverlayTextImageCanvasGroup.alpha;
+
+            while (elapsedTime < fadeOutDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float alpha = Mathf.Lerp(startAlpha, 0f, elapsedTime / fadeOutDuration);
+
+                m_OverlayTextImageCanvasGroup.alpha = alpha;
+                m_OverlayTextCanvasGroup.alpha = alpha;
+
+                yield return null;
+            }
+
+            // 완전히 숨기고 비활성화
+            m_OverlayTextImageCanvasGroup.alpha = 0f;
+            m_OverlayTextCanvasGroup.alpha = 0f;
+            m_OverlayTextImage.gameObject.SetActive(false);
+            m_OverlayText.gameObject.SetActive(false);
+        }
+    }
+
+    private IEnumerator ShowOverlayWithFade()
     {
         string currentFileName = GetCurrentVideoFileName();
         string cleanFileName = FileNameUtils.RemoveSpaces(currentFileName);
         string prefix = GetVideoTypePrefix();
         string customText = GetCustomTextByVideoType();
-        
-        // m_OverlayTextImage: 언어 번역 적용
+
+        // 디버그 로깅 추가
+        DebugOverlayTextContent(currentFileName, cleanFileName, prefix, customText);
+
+        // 텍스트 설정
         m_OverlayTextImage.text = cleanFileName;
         ApplyLocalizationToOverlayText(cleanFileName);
-        
-        // m_OverlayText: 비디오 타입 + 파일명 + 타입별 커스텀 텍스트
         m_OverlayText.text = prefix + " " + cleanFileName + " " + customText;
-        
-        // 표시 및 3초 후 숨김
-        m_OverlayTextImage.gameObject.SetActive(true);
-        m_OverlayText.gameObject.SetActive(true);
-        
-        StartCoroutine(HideOverlayAfterDelay(3f));
+
+        // 페이드 인
+        yield return StartCoroutine(FadeInOverlayTexts());
+
+        // 3초 동안 표시
+        yield return new WaitForSeconds(3f);
+
+        // 페이드 아웃
+        yield return StartCoroutine(FadeOutOverlayTexts());
     }
-    
+
+    private void DebugOverlayTextContent(string currentFileName, string cleanFileName, string prefix, string customText)
+    {
+        Debug.Log($"[오버레이 텍스트 디버그]");
+        Debug.Log($"원본 파일명: {currentFileName}");
+        Debug.Log($"정리된 파일명: {cleanFileName}");
+        Debug.Log($"비디오 타입: {m_VideoType}");
+        Debug.Log($"접두사: {prefix}");
+        Debug.Log($"커스텀 텍스트: {customText}");
+        Debug.Log($"최종 오버레이 텍스트: {prefix} {cleanFileName} {customText}");
+    }
+
     private string GetCustomTextByVideoType()
     {
         string currentTypeString = m_VideoType;
         VideoContentType currentType;
-        
+
         // 문자열을 Enum으로 변환
         if (System.Enum.TryParse<VideoContentType>(currentTypeString, out currentType))
         {
             return overlayTextManager?.GetCustomText(currentType) ?? "";
         }
-        
+
         return "";
     }
-    
+
     private void ApplyLocalizationToOverlayText(string text)
     {
         if (m_OverlayTextImage == null) return;
-        
+
         var localizeStringEvent = m_OverlayTextImage.GetComponent<LocalizeStringEvent>();
         if (localizeStringEvent == null) return;
         
